@@ -83,4 +83,4 @@ git push origin main
 
 ## 📱 Related
 
-Main Android app: [zentrik-app](../zentrik-app)
+Main Android app: [zentrik-app](https://github.com/tyfnnn/Zentrik)
