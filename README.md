@@ -1,5 +1,6 @@
 # Zentrik Supabase Backend
 
+
 Database schema and configuration for Zentrik NGO accounting app.
 
 ## 📋 Contents
