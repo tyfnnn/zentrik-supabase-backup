@@ -67,6 +67,7 @@ supabase db diff --schema public > migrations/$(date +%Y%m%d_%H%M%S)_update.sql
 supabase db push
 ```
 
+
 **Complete backup workflow:**
 ```bash
 # 1. Pull latest changes
