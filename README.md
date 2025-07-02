@@ -57,7 +57,6 @@ supabase db reset
 supabase db pull
 ```
 
-
 **Generate migration from changes:**
 ```bash
 supabase db diff --schema public > migrations/$(date +%Y%m%d_%H%M%S)_update.sql
