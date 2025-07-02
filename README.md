@@ -50,6 +50,7 @@ supabase stop
 supabase db reset
 ```
 
+
 ## 💾 Backup & Sync
 
 **Pull remote schema changes:**
