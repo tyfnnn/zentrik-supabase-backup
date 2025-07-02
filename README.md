@@ -2,7 +2,6 @@
 
 Database schema and configuration for Zentrik NGO accounting app.
 
-
 ## 📋 Contents
 
 - **Migrations**: PostgreSQL schema evolution
