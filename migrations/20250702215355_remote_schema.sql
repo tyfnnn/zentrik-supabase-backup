@@ -27,6 +27,8 @@ CREATE INDEX idx_invites_organization ON public.organization_invites USING btree
 
 CREATE INDEX idx_invites_status ON public.organization_invites USING btree (status) WHERE (status = 'pending'::text);
 
+CREATE INDEX idx_organizations_name ON public.organizations USING btree (name);
+
 CREATE UNIQUE INDEX organization_invites_pkey ON public.organization_invites USING btree (code);
 
 alter table "public"."organization_invites" add constraint "organization_invites_pkey" PRIMARY KEY using index "organization_invites_pkey";
@@ -50,6 +52,10 @@ alter table "public"."organization_invites" validate constraint "organization_in
 alter table "public"."organization_invites" add constraint "organization_invites_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE not valid;
 
 alter table "public"."organization_invites" validate constraint "organization_invites_organization_id_fkey";
+
+alter table "public"."users" add constraint "fk_users_organization" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL not valid;
+
+alter table "public"."users" validate constraint "fk_users_organization";
 
 alter table "public"."users" add constraint "users_invited_by_fkey" FOREIGN KEY (invited_by) REFERENCES users(id) not valid;
 
@@ -191,6 +197,17 @@ END;
 $function$
 ;
 
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$function$
+;
+
 grant delete on table "public"."organization_invites" to "anon";
 
 grant insert on table "public"."organization_invites" to "anon";
@@ -262,6 +279,32 @@ to public
 using ((organization_id IN ( SELECT users.organization_id
    FROM users
   WHERE (users.id = auth.uid()))));
+
+
+create policy "Organizations are manageable by system admins"
+on "public"."organizations"
+as permissive
+for all
+to public
+using ((EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'SYSTEM_ADMIN'::text)))));
+
+
+create policy "Organizations are viewable by authenticated users"
+on "public"."organizations"
+as permissive
+for select
+to public
+using ((auth.role() = 'authenticated'::text));
+
+
+create policy "Temporary: Allow all authenticated users to create organization"
+on "public"."organizations"
+as permissive
+for insert
+to public
+with check ((auth.role() = 'authenticated'::text));
 
 
 CREATE TRIGGER trigger_set_invite_code BEFORE INSERT ON public.organization_invites FOR EACH ROW EXECUTE FUNCTION set_invite_code();
